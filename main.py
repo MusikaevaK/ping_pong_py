@@ -1,7 +1,8 @@
 import sys 
 import random
+import os
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
-from PyQt6.QtGui import QColor, QPainter
+from PyQt6.QtGui import QColor, QPainter, QPixmap
 from PyQt6.QtCore import Qt, QTimer, QRectF
 
 WIDTH = 800
@@ -18,7 +19,8 @@ class GameWidget(QWidget):
         self.timer.start(16)
         self.paddle_left = QRectF(5, 250, 5, 50)
         self.paddle_right = QRectF(WIDTH - 10, 250, 5, 50)
-        self.ball = QRectF(WIDTH/2, HEIGHT/2, 10, 10)
+        self.ball = QRectF(WIDTH/2, HEIGHT/2, 20, 20)
+        self.cherry_img = QPixmap("cherry.png")
         self.ball_speed_x = random.choice([5, -5])
         self.ball_speed_y = random.choice([5, -5])
         self.score_left_player = 0
@@ -34,21 +36,22 @@ class GameWidget(QWidget):
         painter.drawRect(self.paddle_left)
         painter.drawRect(self.paddle_right)
 
-        painter.drawEllipse(self.ball)
+        painter.drawPixmap(self.ball.toRect(), self.cherry_img)
+        #painter.drawEllipse(self.ball)
 
         painter.setPen(Qt.PenStyle.NoPen)
 
-        painter.setPen(QColor("green"))
+        #painter.setPen(QColor("green"))
 
-        cx = self.ball.center().x()
-        cy = self.ball.center().y() #для движения хвостика относительно движения мяча
-        if self.ball_speed_y > 0:
-            tail_y = -10
-        elif self.ball_speed_y < 0:
-            tail_y = 10
-        painter.drawLine(int(cx), int(cy), int(cx + 5), int (cy + tail_y))
+        #cx = self.ball.center().x()
+        #cy = self.ball.center().y() #для движения хвостика относительно движения мяча
+        #if self.ball_speed_y > 0:
+            #tail_y = -20
+        #elif self.ball_speed_y < 0:
+            #tail_y = 20
+        #painter.drawLine(int(cx), int(cy), int(cx + 5), int (cy + tail_y))
         
-        painter.setPen(Qt.PenStyle.NoPen)
+        #painter.setPen(Qt.PenStyle.NoPen)
 
         #painter.drawLine(int(self.ball.center().x()), 
         #                 int(self.ball.center().y()), 
@@ -87,10 +90,10 @@ class GameWidget(QWidget):
 
             update_x = random.randint(200, 600)
             if random.choice([True, False]):
-                update_y = -10 #для плавности захода мяча на поле
+                update_y = -self.ball.height() - 5 #для плавности захода мяча на поле
                 self.ball_speed_y = abs(self.ball_speed_y)
             else:
-                update_y = HEIGHT
+                update_y = HEIGHT + 5
                 self.ball_speed_y = -abs(self.ball_speed_y)
 
             self.ball.moveTo(update_x, update_y)
