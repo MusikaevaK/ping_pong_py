@@ -19,11 +19,13 @@ class GameWidget(QWidget):
         self.timer.timeout.connect(self.update_logic)
         self.timer.start(16) #60 fps
 
-        self.paddle_left = QRectF(5, 250, 5, 50)
-        self.paddle_right = QRectF(WIDTH - 10, 250, 5, 50)
+        self.paddle_left = QRectF(5, 250, 45, 75)
+        self.paddle_right = QRectF(WIDTH - 50, 250, 45, 75)
         self.ball = QRectF(WIDTH/2, HEIGHT/2, 20, 20)
         self.ball_speed_x = random.choice([5, -5])
         self.ball_speed_y = random.choice([5, -5])
+        self.left_leaf_img = QPixmap("left_leaf.png")
+        self.right_leaf_img = QPixmap("right_leaf.png")
         self.cherry_img = QPixmap("cherry.png")
         self.cherry_tail_img = QPixmap("cherry_tail.png")
         self.cherry_leaves_img = QPixmap("cherry_leaves.png")
@@ -37,10 +39,8 @@ class GameWidget(QWidget):
         painter = QPainter(self)
         painter.fillRect(self.rect(), QColor("pink"))
 
-        painter.setBrush(QColor("red"))
-        painter.drawRect(self.paddle_left)
-        painter.drawRect(self.paddle_right)
-        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawPixmap(self.paddle_left.toRect(), self.left_leaf_img)
+        painter.drawPixmap(self.paddle_right.toRect(), self.right_leaf_img )
 
         painter.drawPixmap(self.ball.toRect(), self.cherry_img)
         cx = self.ball.toRect().center().x()
@@ -90,11 +90,21 @@ class GameWidget(QWidget):
     def update_logic(self):
         if not self.run_game:
             return 
+        
+        ball_center_y = self.ball.center().y()
+        paddle_center_y = self.paddle_left.center().y()
 
-        if Qt.Key.Key_W in self.keys and self.paddle_left.top() > 4:
-            self.paddle_left.translate(0, -5)
-        if Qt.Key.Key_S in self.keys and self.paddle_left.bottom() < HEIGHT - 4:
-            self.paddle_left.translate(0, 5)
+        if ball_center_y > paddle_center_y:
+            if self.paddle_left.bottom() < HEIGHT:
+                self.paddle_left.translate(0, 5)
+        elif ball_center_y < paddle_center_y:
+            if self.paddle_left.top() > 0:
+                self.paddle_left.translate(0, -5)
+
+        #if Qt.Key.Key_W in self.keys and self.paddle_left.top() > 4:
+            #self.paddle_left.translate(0, -5)
+        #if Qt.Key.Key_S in self.keys and self.paddle_left.bottom() < HEIGHT - 4:
+            #self.paddle_left.translate(0, 5)
         if Qt.Key.Key_Up in self.keys and self.paddle_right.top() > 4:
             self.paddle_right.translate(0, -5)
         if Qt.Key.Key_Down in self.keys and self.paddle_right.bottom() < HEIGHT - 4:
@@ -131,10 +141,10 @@ class GameWidget(QWidget):
                 #update_y = HEIGHT + 5
                 #self.ball_speed_y = -abs(self.ball_speed_y)
             
-            self.ball_speed_x = random.choice([self.ball_speed_x, -self.ball_speed_x])
+            #self.ball_speed_x = random.choice([self.ball_speed_x, -self.ball_speed_x])
             self.ball.moveTo(WIDTH/2, HEIGHT/2)
 
-            #self.ball_speed_x = -self.ball_speed_x if self.ball_speed_x > 0 else self.ball_speed_x 
+            self.ball_speed_x = -self.ball_speed_x if self.ball_speed_x > 0 else self.ball_speed_x 
 
         if self.paddle_left.intersects(self.ball) or self.paddle_right.intersects(self.ball):
             if self.ball_speed_x < 0:
